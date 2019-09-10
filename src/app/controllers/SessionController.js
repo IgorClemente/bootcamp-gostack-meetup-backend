@@ -43,15 +43,6 @@ class SessionController {
       }),
     });
   }
-
-  async update(req, res) {
-    const schema = Yup.object().shape({
-      email: Yup.string()
-        .email()
-        .required(),
-      password: Yup.string().min(6),
-    });
-  }
 }
 
 export default new SessionController();
