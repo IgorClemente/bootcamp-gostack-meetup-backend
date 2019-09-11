@@ -20,11 +20,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      organizer: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
