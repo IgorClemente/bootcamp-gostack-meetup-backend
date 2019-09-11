@@ -23,7 +23,7 @@ class User extends Model {
     });
   }
 
-  checkPassword(password) {
+  async checkPassword(password) {
     return bcryptjs.compare(password, this.password_hash);
   }
 }

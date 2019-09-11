@@ -18,6 +18,6 @@ module.exports = {
     camelcase: 'off',
     'class-methods-use-this': 'off',
     'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
-    'no-param-reassing': 'off',
+    'no-param-reassign': 'off',
   },
 };

@@ -59,26 +59,40 @@ class UserController {
     const { userID } = req;
 
     if (!userID) {
-      return res.status(401).status({ error: '' });
+      return res
+        .status(401)
+        .status({ error: 'User id parameter not provided' });
     }
 
-    const user = User.findByPk(userID);
+    const user = await User.findByPk(userID);
 
     if (!user) {
-      return res.status(401).json({ error: '' });
+      return res.status(401).json({ error: 'User does not exists' });
     }
 
-    const { email } = req.body;
-
-    if (user.email !== email) {
-      const checkUserExists = User.findOne({ where: email });
+    if (req.body.email && user.email !== req.body.email) {
+      const checkUserExists = await User.findOne({
+        where: { email: req.body.email },
+      });
 
       if (checkUserExists) {
         return res.status(400).json({ error: 'User already exists' });
       }
     }
 
-    res.json({});
+    const { oldPassword } = req.body;
+
+    if (oldPassword && !(await user.checkPassword(oldPassword))) {
+      res.status(401).json({ error: 'Password does not match' });
+    }
+
+    const { name, email } = await user.update(req.body);
+
+    return res.json({
+      id: req.userID,
+      name,
+      email,
+    });
   }
 }
 
