@@ -10,6 +10,7 @@ import SessionController from './controllers/SessionController';
 import FileController from './controllers/FileController';
 import MeetupController from './controllers/MeetupController';
 import ScheduleController from './controllers/ScheduleController';
+import SubscribeController from './controllers/SubscribeController';
 
 const routes = express.Router();
 
@@ -26,5 +27,6 @@ routes.post('/meetups', MeetupController.store);
 routes.put('/meetups/:id', MeetupController.update);
 routes.get('/schedules', ScheduleController.index);
 routes.delete('/meetups/:id', MeetupController.delete);
+routes.post('/subscribes', SubscribeController.store);
 
 export default routes;
