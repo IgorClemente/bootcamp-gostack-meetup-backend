@@ -52,36 +52,62 @@ class MeetupController {
       return res.status(400).json({ error: 'Validation failed' });
     }
 
-    const { id } = req.params;
+    const { id: meetup_id } = req.params;
 
-    if (!id) return res.status(401).json({ error: 'Meetup id not provided' });
+    if (!meetup_id) {
+      return res.status(401).json({ error: 'Meetup id not provided' });
+    }
 
-    const meetup = await Meetup.findOne({
-      where: { id, user_id: req.userID },
-    });
+    const meetup = await Meetup.findByPk(meetup_id);
 
     if (!meetup) {
       return res.status(401).json({ error: 'Meetup does not exist' });
     }
 
-    const { date } = req.body;
+    const { userID: user_id } = req;
 
-    const hourStart = startOfHour(parseISO(date));
+    if (meetup.user_id !== user_id) {
+      return res
+        .status(401)
+        .json({ error: 'You can only edit meetup with organizer' });
+    }
+
+    const hourStart = startOfHour(parseISO(req.body.date));
 
     if (isBefore(hourStart, new Date())) {
       return res.status(401).json({ error: 'The event has already happened' });
     }
 
     meetup.update({
-      user_id: req.userID,
-      title: req.body.title,
-      description: req.body.description,
-      location: req.body.location,
-      date: req.body.date,
-      banner_id: req.body.banner_id,
+      ...req.body,
+      user_id,
     });
 
-    return res.json(meetup);
+    const { title, description, location, date } = meetup;
+
+    return res.json({ title, description, location, date });
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const meetup = await Meetup.findByPk(id);
+
+    if (!meetup) {
+      return res.status(401).json({ error: 'Meetup does not exists' });
+    }
+
+    const { userID: user_id } = req;
+
+    if (meetup.user_id !== user_id) {
+      return res
+        .status(401)
+        .json({ error: 'You can only edit meetup with organizer' });
+    }
+
+    await meetup.destroy();
+
+    return res.json({ success: 'Meetup deleted' });
   }
 }
 

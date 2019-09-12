@@ -9,6 +9,7 @@ import UserController from './controllers/UserController';
 import SessionController from './controllers/SessionController';
 import FileController from './controllers/FileController';
 import MeetupController from './controllers/MeetupController';
+import ScheduleController from './controllers/ScheduleController';
 
 const routes = express.Router();
 
@@ -23,5 +24,7 @@ routes.put('/users', UserController.update);
 routes.post('/uploads', upload.single('file'), FileController.store);
 routes.post('/meetups', MeetupController.store);
 routes.put('/meetups/:id', MeetupController.update);
+routes.get('/schedules', ScheduleController.index);
+routes.delete('/meetups/:id', MeetupController.delete);
 
 export default routes;
