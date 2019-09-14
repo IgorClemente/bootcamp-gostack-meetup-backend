@@ -13,7 +13,7 @@ class SubscribeController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      res.status(401).json({ error: 'Validation failed' });
+      return res.status(401).json({ error: 'Validation failed' });
     }
 
     const { userID: user_id } = req;
@@ -37,7 +37,7 @@ class SubscribeController {
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
-      return res.status(401).json('Past date are not permitted');
+      return res.status(401).json({ error: 'Past date are not permitted' });
     }
 
     const checkSubscribe = await Subscription.findOne({
@@ -46,11 +46,29 @@ class SubscribeController {
 
     if (checkSubscribe) {
       return res.status(401).json({
-        error: 'inscrição encontrada, é possível somente uma inscrição',
+        error: 'Only one event registration allowed',
       });
     }
 
-    return res.json({});
+    const { date: meetup_date } = meetup;
+
+    const checkHourSubscription = await Subscription.findOne({
+      where: { user_id, date: meetup_date },
+    });
+
+    if (checkHourSubscription) {
+      return res
+        .status(401)
+        .json({ error: 'User has an event scheduled at this time' });
+    }
+
+    const subscription = await Subscription.create({
+      meetup_id,
+      user_id,
+      date,
+    });
+
+    return res.json(subscription);
   }
 }
 
