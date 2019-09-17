@@ -6,17 +6,19 @@
   "author": "Igor Clemente <igorelectrofest2011@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon ./src/app/server.js"
+    "dev": "nodemon ./src/app/server.js",
+    "queue": "nodemon ./src/app/queue.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bee-queue": "^1.2.2",
     "crypto": "^1.0.1",
     "date-fns": "^2.1.0",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
-    "node-mailer": "^0.1.1",
+    "nodemailer": "^6.3.0",
     "nodemailer-express-handlebars": "^3.1.0",
     "sequelize": "^5.18.4",
     "yup": "^0.27.0"

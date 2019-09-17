@@ -1,14 +1,15 @@
-import nodemailer from 'node-mailer';
+import nodemailer from 'nodemailer';
 import exphbs from 'express-handlebars';
 import ndmexphbs from 'nodemailer-express-handlebars';
 
 import { resolve } from 'path';
 import mailConfig from '../app/config/mail';
 
-class Main {
+class Mail {
   constructor() {
     const { host, port, secure, auth } = mailConfig;
     this.transporter = nodemailer.createTransport({ host, port, secure, auth });
+    this.configureTemplates();
   }
 
   configureTemplates() {
@@ -28,6 +29,13 @@ class Main {
       })
     );
   }
+
+  sendMail(message) {
+    return this.transporter.sendMail({
+      ...mailConfig.default,
+      ...message,
+    });
+  }
 }
 
-export default new Main();
+export default new Mail();

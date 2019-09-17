@@ -1,9 +1,54 @@
 import * as Yup from 'yup';
-import { isBefore, parseISO, startOfHour } from 'date-fns';
+import {
+  isBefore,
+  parseISO,
+  startOfHour,
+  startOfDay,
+  endOfDay,
+} from 'date-fns';
+
+import { Op } from 'sequelize';
 
 import Meetup from '../models/Meetup';
+import File from '../models/File';
+import User from '../models/User';
 
 class MeetupController {
+  async index(req, res) {
+    const { date, page = 1 } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'Data parameter not provided' });
+    }
+
+    const dateParsed = parseISO(date);
+
+    const meetups = await Meetup.findAll({
+      where: {
+        date: {
+          [Op.between]: [startOfDay(dateParsed), endOfDay(dateParsed)],
+        },
+      },
+      limit: 10,
+      offset: (page - 1) * 10,
+      attributes: ['id', 'title', 'description', 'location', 'date'],
+      include: [
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'url'],
+        },
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
+
+    return res.json(meetups);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       title: Yup.string().required(),

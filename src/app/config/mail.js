@@ -6,4 +6,7 @@ module.exports = {
     user: 'e5fdf4668ed222',
     pass: '0b0f0e204a06f4',
   },
+  default: {
+    from: 'Equipe Meetup <noreply@meetup.com.br>',
+  },
 };

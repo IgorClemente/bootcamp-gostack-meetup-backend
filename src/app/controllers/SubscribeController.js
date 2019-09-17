@@ -4,6 +4,11 @@ import { isBefore, startOfHour, parseISO } from 'date-fns';
 
 import Meetup from '../models/Meetup';
 import Subscription from '../models/Subscription';
+import User from '../models/User';
+
+import Queue from '../../lib/Queue';
+
+import SubscriptionMail from '../jobs/SubscriptionMail';
 
 class SubscribeController {
   async store(req, res) {
@@ -20,13 +25,21 @@ class SubscribeController {
 
     const { meetup_id } = req.body;
 
-    const meetup = await Meetup.findByPk(meetup_id);
+    const meetup = await Meetup.findByPk(meetup_id, {
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
 
     if (!meetup) {
       return res.status(400).json({ error: 'Meetup does not exists' });
     }
 
-    if (meetup.user_id !== user_id) {
+    if (meetup.user_id === user_id) {
       return res
         .status(401)
         .json({ error: 'Registration not allowed for organizer' });
@@ -62,13 +75,22 @@ class SubscribeController {
         .json({ error: 'User has an event scheduled at this time' });
     }
 
-    const subscription = await Subscription.create({
+    const { id } = await Subscription.create({
       meetup_id,
       user_id,
       date,
     });
 
-    return res.json(subscription);
+    const user = await User.findByPk(user_id, {
+      attributes: ['name', 'email'],
+    });
+
+    await Queue.add(SubscriptionMail.key, {
+      meetup,
+      user,
+    });
+
+    return res.json({ id, meetup_id, user_id, date });
   }
 }
 
